@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 
-export function run01() : void
+export function run01A() : void
 {
     console.log('Running 01')
 

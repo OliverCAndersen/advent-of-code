@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.run01 = void 0;
+exports.run01A = void 0;
 const fs_1 = require("fs");
-function run01() {
+function run01A() {
     console.log('Running 01');
     const fileContent = (0, fs_1.readFileSync)('./input/01/input.txt', 'utf-8');
     var sum = 0;
@@ -30,4 +30,4 @@ function run01() {
     });
     console.log("Sum: " + sum);
 }
-exports.run01 = run01;
+exports.run01A = run01A;

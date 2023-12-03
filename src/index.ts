@@ -1,3 +1,3 @@
-import { run01A } from "./01/01";
+import { run01A, run01B } from "./01/01";
 
-run01A();
+run01B();

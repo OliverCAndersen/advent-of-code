@@ -10,6 +10,11 @@ function run06A() {
     var distances = parseNumbersFromLine(lines[1]);
     //console.log("times: " + times)
     //console.log("distances: " + distances)
+    var winningHoldTimesProduct = getWinningHoldTimesProduct(times, distances);
+    console.log("Winning Hold Times Product: " + winningHoldTimesProduct);
+}
+exports.run06A = run06A;
+function getWinningHoldTimesProduct(times, distances) {
     var winningHoldTimesProduct = 1;
     for (var i = 0; i < times.length && i < distances.length; ++i) {
         var raceTime = times[i];
@@ -24,9 +29,8 @@ function run06A() {
         //console.log("Race " + i + " - Winning hold times: " + winningHoldTimes.length + " - [" + winningHoldTimes + "]")
         winningHoldTimesProduct *= winningHoldTimes.length;
     }
-    console.log("Winning Hold Times Product: " + winningHoldTimesProduct);
+    return winningHoldTimesProduct;
 }
-exports.run06A = run06A;
 function parseNumbersFromLine(line) {
     var regexMatch = line.match(/\d+/g);
     if (regexMatch == null)
@@ -35,7 +39,23 @@ function parseNumbersFromLine(line) {
     regexMatch.forEach(match => { numbers.push(+match); });
     return numbers;
 }
+function parseNumberFromLineIgnoreSpaces(line) {
+    var regexMatch = line.match(/\d+/g);
+    if (regexMatch == null)
+        return 0;
+    var numberString = "";
+    regexMatch.forEach(match => { numberString += match; });
+    return +numberString;
+}
 function run06B() {
     console.log('Running 06B');
+    const fileContent = (0, fs_1.readFileSync)('./input/06/input.txt', 'utf-8');
+    var lines = fileContent.split(/\r?\n/);
+    var times = [parseNumberFromLineIgnoreSpaces(lines[0])];
+    var distances = [parseNumberFromLineIgnoreSpaces(lines[1])];
+    //console.log("times: " + times)
+    //console.log("distances: " + distances)
+    var winningHoldTimesProduct = getWinningHoldTimesProduct(times, distances);
+    console.log("Winning Hold Times Product: " + winningHoldTimesProduct);
 }
 exports.run06B = run06B;

@@ -6,4 +6,4 @@ import { run05A, run05B } from "./05/05";
 import { run06A, run06B } from "./06/06";
 import { run07A, run07B } from "./07/07";
 
-run07A();
+run07B();

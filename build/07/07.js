@@ -4,6 +4,7 @@ exports.run07B = exports.run07A = void 0;
 const fs_1 = require("fs");
 var CardType;
 (function (CardType) {
+    CardType[CardType["WildCardJ"] = 1] = "WildCardJ";
     CardType[CardType["Two"] = 2] = "Two";
     CardType[CardType["Three"] = 3] = "Three";
     CardType[CardType["Four"] = 4] = "Four";
@@ -19,12 +20,12 @@ var CardType;
     CardType[CardType["A"] = 14] = "A";
     CardType[CardType["Invalid"] = -1] = "Invalid";
 })(CardType || (CardType = {}));
-function getCardType(character) {
+function getCardType(character, allowWildCards) {
     switch (character) {
         case "T":
             return CardType.T;
         case "J":
-            return CardType.J;
+            return allowWildCards ? CardType.WildCardJ : CardType.J;
         case "Q":
             return CardType.Q;
         case "K":
@@ -47,6 +48,25 @@ var HandType;
     HandType[HandType["FourOfAKind"] = 5] = "FourOfAKind";
     HandType[HandType["FiveOfAKind"] = 6] = "FiveOfAKind";
 })(HandType || (HandType = {}));
+function toString(handType) {
+    switch (handType) {
+        case HandType.HighCard:
+            return "HighCard";
+        case HandType.OnePair:
+            return "OnePair";
+        case HandType.TwoPairs:
+            return "TwoPairs";
+        case HandType.ThreeOfAKind:
+            return "ThreeOfAKind";
+        case HandType.FullHouse:
+            return "FullHouse";
+        case HandType.FourOfAKind:
+            return "FourOfAKind";
+        case HandType.FiveOfAKind:
+            return "FiveOfAKind";
+    }
+    return "";
+}
 class Hand {
     constructor(handString, cards, bid, handType) {
         this.handString = handString;
@@ -56,7 +76,7 @@ class Hand {
     }
 }
 // sorts from worst hands to best hands
-// returns negative if b is bigger than a
+// returns positive if a is smaller than b
 function CompareHands(a, b) {
     if (a.handType == b.handType) {
         for (var i = 0; i < a.cards.length; ++i) {
@@ -76,9 +96,9 @@ function run07A() {
         var handAndBid = line.split(" ");
         var handString = handAndBid[0];
         var bid = +handAndBid[1];
-        var cards = getCards(handString);
+        var cards = getCards(handString, false);
         var handType = getHandType(cards);
-        //console.log("Hand: " + handString + " => " + handType + " - bid: " + bid)
+        //console.log("Hand: " + handString + " => " + cards + " - Type: " + toString(handType) + " - bid: " + bid)
         hands.push(new Hand(handString, cards, bid, handType));
     });
     //console.log(hands)
@@ -93,15 +113,12 @@ function run07A() {
         sum += handValue;
     }
     console.log("Sum: " + sum);
-    //console.log("times: " + times)
-    //console.log("distances: " + distances) 
-    //console.log("Winning Hold Times Product: " + winningHoldTimesProduct)
 }
 exports.run07A = run07A;
-function getCards(hand) {
+function getCards(hand, allowWildCards) {
     var parsedCards = [];
     for (var i = 0; i < hand.length; ++i) {
-        var card = getCardType(hand[i]);
+        var card = getCardType(hand[i], allowWildCards);
         parsedCards.push(card);
     }
     return parsedCards;
@@ -113,35 +130,75 @@ function getHandType(parsedCards) {
         if (parsedCards[i] != CardType.Invalid)
             cardCounts[parsedCards[i]]++;
     }
+    // Check wild card count and then clear them so we don't handle them like any card
+    var wildCardCount = cardCounts[CardType.WildCardJ];
+    cardCounts[CardType.WildCardJ] = 0;
     if (cardCounts.includes(5)) {
         return HandType.FiveOfAKind;
     }
     else if (cardCounts.includes(4)) {
+        if (wildCardCount == 1)
+            return HandType.FiveOfAKind;
         return HandType.FourOfAKind;
     }
     else if (cardCounts.includes(3)) {
-        if (cardCounts.includes(2))
+        if (wildCardCount == 2)
+            return HandType.FiveOfAKind;
+        else if (wildCardCount == 1)
+            return HandType.FourOfAKind;
+        else if (cardCounts.includes(2))
             return HandType.FullHouse;
-        else
-            return HandType.ThreeOfAKind;
+        return HandType.ThreeOfAKind;
     }
     else if (cardCounts.includes(2)) {
-        if (cardCounts.filter(value => { return value == 2; }).length == 2)
+        var hasAnotherPair = (cardCounts.filter(value => { return value == 2; }).length == 2);
+        if (wildCardCount == 3)
+            return HandType.FiveOfAKind;
+        else if (wildCardCount == 2)
+            return HandType.FourOfAKind;
+        else if (wildCardCount == 1)
+            return hasAnotherPair ? HandType.FullHouse : HandType.ThreeOfAKind;
+        else if (hasAnotherPair)
             return HandType.TwoPairs;
-        else
-            return HandType.OnePair;
+        return HandType.OnePair;
     }
+    // Down here we know that no non-wildcard has more than 1 of each card, so just combine the wildcards with the unique rest in the best possible way 
+    // Both 4 and 5 wild cards give us FiveOfAKind because the 4 can be combined with the 5th random card
+    if (wildCardCount >= 4)
+        return HandType.FiveOfAKind;
+    else if (wildCardCount == 3)
+        return HandType.FourOfAKind;
+    else if (wildCardCount == 2)
+        return HandType.ThreeOfAKind;
+    else if (wildCardCount == 1)
+        return HandType.OnePair;
     return HandType.HighCard;
-}
-function parseNumbersFromText(parseNumbersFromText) {
-    var regexMatch = parseNumbersFromText.match(/\d+/g);
-    if (regexMatch == null)
-        return [];
-    var numbers = [];
-    regexMatch.forEach(match => { numbers.push(+match); });
-    return numbers;
 }
 function run07B() {
     console.log('Running 07B');
+    const fileContent = (0, fs_1.readFileSync)('./input/07/input.txt', 'utf-8');
+    var lines = fileContent.split(/\r?\n/);
+    var hands = [];
+    lines.forEach(line => {
+        var handAndBid = line.split(" ");
+        var handString = handAndBid[0];
+        var bid = +handAndBid[1];
+        var cards = getCards(handString, true);
+        var handType = getHandType(cards);
+        //console.log("Hand: " + handString + " => " + cards + " - Type: " + toString(handType) + " - bid: " + bid)
+        hands.push(new Hand(handString, cards, bid, handType));
+    });
+    //console.log(hands)
+    hands.sort(CompareHands);
+    //console.log("Sorted Hands: ")
+    //console.log(hands)
+    var sum = 0;
+    for (var i = 0; i < hands.length; ++i) {
+        var hand = hands[i];
+        var handRank = i + 1;
+        var handValue = hand.bid * handRank;
+        sum += handValue;
+    }
+    console.log("Sum: " + sum);
 }
 exports.run07B = run07B;

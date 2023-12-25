@@ -8,4 +8,4 @@ import { run07A, run07B } from "./07/07";
 import { run08A, run08B } from "./08/08";
 import { run09A, run09B } from "./09/09";
 
-run09A();
+run09B();

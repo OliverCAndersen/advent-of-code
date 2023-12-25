@@ -18,6 +18,18 @@ function run09A() {
 }
 exports.run09A = run09A;
 function run09B() {
+    console.log('Running 09B');
+    const fileContent = (0, fs_1.readFileSync)('./input/09/input.txt', 'utf-8');
+    var sum = 0;
+    var lines = fileContent.trim().split(/\r?\n/);
+    for (var line of lines) {
+        //console.log("Line: " + line)
+        var history = parseNumbersFromLine(line);
+        var prediction = predictPastFromHistory(history);
+        //console.log(history + " -> " + prediction)
+        sum += prediction;
+    }
+    console.log("Prediction Sum: " + sum);
 }
 exports.run09B = run09B;
 function getHistoryBreakdownTree(history) {
@@ -37,9 +49,21 @@ function predictFutureFromHistory(history) {
     var differenceBreakdownTree = getHistoryBreakdownTree(history);
     //console.log(differenceBreakdownTree)
     var prediction = 0;
+    // Go from the bottom up in the tree and transform the prediction at the end of the history
     for (var i = differenceBreakdownTree.length - 2; i >= 0; --i) {
         var differences = differenceBreakdownTree[i];
         prediction = differences[differences.length - 1] + prediction;
+    }
+    return prediction;
+}
+function predictPastFromHistory(history) {
+    var differenceBreakdownTree = getHistoryBreakdownTree(history);
+    //console.log(differenceBreakdownTree)
+    var prediction = 0;
+    // Go from the bottom up in the tree and transform the prediction at the front of the history
+    for (var i = differenceBreakdownTree.length - 2; i >= 0; --i) {
+        var differences = differenceBreakdownTree[i];
+        prediction = differences[0] - prediction;
     }
     return prediction;
 }

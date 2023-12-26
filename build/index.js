@@ -1,4 +1,4 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const _09_1 = require("./09/09");
-(0, _09_1.run09B)();
+const _10_1 = require("./10/10");
+(0, _10_1.run10A)();

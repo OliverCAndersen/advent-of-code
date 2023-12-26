@@ -40,7 +40,36 @@ export function run10A()
     
     const fileContent = readFileSync('./input/10/input.txt', 'utf-8')
     var lines: string[] = fileContent.trim().split(/\r?\n/)
+
+    var mainLine: Character[] = buildMainLinePipe(lines)
+
+    //drawCharactersAloneOnMap(lines, mainLine, CharacterType.Ground)
+
+    console.log("Main line length: " + mainLine.length)
+
+    var longestStepDistance = mainLine.length / 2
+    console.log("Longest step distance: " + longestStepDistance)
+}
+
+export function run10B()
+{
+    console.log('Running 10B')
+
+    const fileContent = readFileSync('./input/10/input.txt', 'utf-8')
     
+    var sum: number = 0
+
+    var lines: string[] = fileContent.trim().split(/\r?\n/)
+    for (var line of lines)
+    {
+        
+    }
+
+    console.log("Prediction Sum: " + sum)
+}
+
+function buildMainLinePipe(lines: string[]): Character[]
+{
     // Find starting position    
     var startingPipe: Character = { type: CharacterType.StartingPosition, coords: new Coordinates(0, 0) }
     for (var y = 0; y < lines.length; ++y)
@@ -164,27 +193,31 @@ export function run10A()
         currentPipe = currentPipe.nextPipe
     }
 
-    console.log("Main line length: " + mainLine.length)
-
-    var longestStepDistance = mainLine.length / 2
-    console.log("Longest step distance: " + longestStepDistance)
+    return mainLine
 }
 
-export function run10B()
+function drawCharactersAloneOnMap(lines: string[], characters: Character[], backgroundCharacterType: CharacterType)
 {
-    console.log('Running 10B')
-
-    const fileContent = readFileSync('./input/10/input.txt', 'utf-8')
-    
-    var sum: number = 0
-
-    var lines: string[] = fileContent.trim().split(/\r?\n/)
-    for (var line of lines)
+    for (var y = 0; y < lines.length; ++y)
     {
-        
-    }
+        var linePrint = ""
 
-    console.log("Prediction Sum: " + sum)
+        var line = lines[y]
+        for (var x = 0; x < line.length; ++x)
+        {
+            var foundInCharacters = characters.find(char => char.coords.x == x && char.coords.y == y)
+            if (foundInCharacters != undefined)
+            {
+                linePrint += foundInCharacters.type
+            }
+            else
+            {
+                linePrint += backgroundCharacterType
+            }
+        }
+
+        console.log(linePrint)
+    }
 }
 
 function deduceStartingPipeTypeFromNeighbors(lines: string[], startingCharacter: Character): void

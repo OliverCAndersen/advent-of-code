@@ -24,6 +24,24 @@ function run10A() {
     console.log('Running 10A');
     const fileContent = (0, fs_1.readFileSync)('./input/10/input.txt', 'utf-8');
     var lines = fileContent.trim().split(/\r?\n/);
+    var mainLine = buildMainLinePipe(lines);
+    //drawCharactersAloneOnMap(lines, mainLine, CharacterType.Ground)
+    console.log("Main line length: " + mainLine.length);
+    var longestStepDistance = mainLine.length / 2;
+    console.log("Longest step distance: " + longestStepDistance);
+}
+exports.run10A = run10A;
+function run10B() {
+    console.log('Running 10B');
+    const fileContent = (0, fs_1.readFileSync)('./input/10/input.txt', 'utf-8');
+    var sum = 0;
+    var lines = fileContent.trim().split(/\r?\n/);
+    for (var line of lines) {
+    }
+    console.log("Prediction Sum: " + sum);
+}
+exports.run10B = run10B;
+function buildMainLinePipe(lines) {
     // Find starting position    
     var startingPipe = { type: CharacterType.StartingPosition, coords: new Coordinates(0, 0) };
     for (var y = 0; y < lines.length; ++y) {
@@ -121,21 +139,24 @@ function run10A() {
         // Move on to the next pipe
         currentPipe = currentPipe.nextPipe;
     }
-    console.log("Main line length: " + mainLine.length);
-    var longestStepDistance = mainLine.length / 2;
-    console.log("Longest step distance: " + longestStepDistance);
+    return mainLine;
 }
-exports.run10A = run10A;
-function run10B() {
-    console.log('Running 10B');
-    const fileContent = (0, fs_1.readFileSync)('./input/10/input.txt', 'utf-8');
-    var sum = 0;
-    var lines = fileContent.trim().split(/\r?\n/);
-    for (var line of lines) {
+function drawCharactersAloneOnMap(lines, characters, backgroundCharacterType) {
+    for (var y = 0; y < lines.length; ++y) {
+        var linePrint = "";
+        var line = lines[y];
+        for (var x = 0; x < line.length; ++x) {
+            var foundInCharacters = characters.find(char => char.coords.x == x && char.coords.y == y);
+            if (foundInCharacters != undefined) {
+                linePrint += foundInCharacters.type;
+            }
+            else {
+                linePrint += backgroundCharacterType;
+            }
+        }
+        console.log(linePrint);
     }
-    console.log("Prediction Sum: " + sum);
 }
-exports.run10B = run10B;
 function deduceStartingPipeTypeFromNeighbors(lines, startingCharacter) {
     var westCharacter = getCharacter(lines, startingCharacter.coords.x - 1, startingCharacter.coords.y);
     var eastCharacter = getCharacter(lines, startingCharacter.coords.x + 1, startingCharacter.coords.y);
